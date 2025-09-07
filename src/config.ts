@@ -27,9 +27,6 @@ const configSchema = z.object({
   COOKIE_MODE: z.enum(['true', 'false']).transform((val) => val === 'true'),
   IS_PRODUCTION: z.enum(['true', 'false']).transform((val) => val === 'true'),
   PRODUCTION_URL: z.string(),
-  CLOUDINARY_CLOUD_NAME: z.string(),
-  CLOUDINARY_API_KEY: z.string(),
-  CLOUDINARY_API_SECRET: z.string(),
 })
 
 const configServer = configSchema.safeParse(process.env)
