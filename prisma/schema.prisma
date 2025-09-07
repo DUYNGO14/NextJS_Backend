@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  male
+  female
+}
+model Account {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  username  String
+  name      String
+  password  String
+  dob       DateTime?
+  gender    Gender?
+  phone     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  Session   Session[]
+  Posts     Post[]     // 🔹 thêm quan hệ ngược lại
+}
+
+model Session {
+  token     String   @id
+  accountId Int
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accountId Int
+  account   Account  @relation(fields: [accountId], references: [id]) // 🔹 relation có 2 chiều
+}
+
+model Match {
+  id        Int      @id @default(autoincrement())
+  homeTeam  String
+  awayTeam  String
+  kickOff   DateTime   // 🔹 lưu ngày + giờ bắt đầu trận
+  location  String
+  league    String
+  homeLogo  String
+  awayLogo  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
