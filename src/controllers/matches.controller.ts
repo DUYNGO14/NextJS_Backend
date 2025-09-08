@@ -1,4 +1,4 @@
-import { MatchBodyType, MatchResponseType, MatchNotFoundResponseType, MatchesListResType } from "@/schemaValidations/matches.schema"
+import { MatchBodyType, MatchResponseType, MatchNotFoundResponseType, MatchesListResType, GetQueryParamsType } from "@/schemaValidations/matches.schema"
 import prisma from '@/database'
 
 // Helper function for transform logic
@@ -40,15 +40,33 @@ export const createMatchesController = async (body: MatchBodyType): Promise<Matc
 };
 
 
-export const getMatchesController = async (): Promise<MatchesListResType> => {
+export const getMatchesController = async (queryParams: GetQueryParamsType): Promise<MatchesListResType> => {
+  const page = queryParams.page || 1;
+  const limit = queryParams.limit || 5;
+  const skip = (page - 1) * limit;
+
+  const sortBy = queryParams.sortBy || 'kickOff';
+  const sortOrder = queryParams.sortOrder || 'asc';
+   const total = await prisma.match.count();
+
   const matches = await prisma.match.findMany({
-    orderBy: { kickOff: 'asc' }
-  });
+    orderBy: {
+      [sortBy]: sortOrder
+    },
+    skip,
+    take: limit
+  })
   
   const transformedMatches = matches.map(transformMatch);
   
   return {
     data: transformedMatches,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPage: Math.ceil(total / limit)
+    },
     message: 'Matches retrieved successfully'
   };
 };

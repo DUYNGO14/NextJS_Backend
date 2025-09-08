@@ -35,7 +35,13 @@ export type MatchResponseType = z.infer<typeof MatchResponse>
 
 export const MatchesListRes = z.object({
   data: z.array(MatchData),
-  message: z.string()
+  message: z.string(),
+  pagination: z.object({
+    page: z.number(),
+    limit: z.number(),
+    total: z.number(),
+    totalPage: z.number()
+  })
 })
 export type MatchesListResType = z.infer<typeof MatchesListRes>
 
@@ -50,3 +56,11 @@ export const MatchNotFoundResponse = z.object({
   message: z.string()
 })
 export type MatchNotFoundResponseType = z.infer<typeof MatchNotFoundResponse>
+
+export const GetQueryParams = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().max(100).default(5),
+  sortBy: z.string().default('kickOff'),
+  sortOrder: z.enum(['asc', 'desc']).default('asc')
+})
+export type GetQueryParamsType = z.infer<typeof GetQueryParams>

@@ -15,7 +15,9 @@ import {
   MatchResponse,
   MatchResponseType,
   MatchNotFoundResponse,
-  MatchNotFoundResponseType
+  MatchNotFoundResponseType,
+  GetQueryParamsType,
+  GetQueryParams
 } from '@/schemaValidations/matches.schema'
 import { FastifyInstance, FastifyPluginOptions } from 'fastify'
 
@@ -42,17 +44,27 @@ export default async function matchesRoutes(fastify: FastifyInstance, options: F
   )
 
   // READ ALL
-  fastify.get<{ Reply: MatchesListResType }>(
+  fastify.get<{ 
+    QueryString: GetQueryParamsType
+    ,Reply: MatchesListResType }>(
     '/',
     {
       schema: {
+        querystring: GetQueryParams,
         response: {
           200: MatchesListRes
         }
       }
     },
     async (request, reply) => {
-      const result = await getMatchesController();
+      const { page, limit, sortBy, sortOrder } = request.query as GetQueryParamsType;
+      console.log(request.query);
+      const result = await getMatchesController({
+        page,
+        limit,
+        sortBy,
+        sortOrder
+      });
       reply.send(result);
     }
   )
