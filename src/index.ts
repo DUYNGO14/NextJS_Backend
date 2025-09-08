@@ -13,6 +13,8 @@ import path from 'path'
 import { createFolder } from '@/utils/helpers'
 import staticRoutes from '@/routes/static.route'
 import testRoutes from '@/routes/test.route'
+import { match } from 'assert'
+import matchesRoutes from '@/routes/matches.route'
 
 const fastify = Fastify({
   logger: true
@@ -47,6 +49,9 @@ const start = async () => {
     })
     fastify.register(staticRoutes, {
       prefix: '/static'
+    })
+    fastify.register(matchesRoutes, {
+      prefix: '/matches'
     })
     fastify.register(testRoutes, {
       prefix: '/test'

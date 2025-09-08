@@ -14,7 +14,8 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "postbuild": "prisma generate"
+    "postbuild": "prisma generate",
+    "seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -43,7 +44,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/ms": "^0.7.34",
-    "@types/node": "^20.11.16",
+    "@types/node": "^20.19.13",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",
     "cross-env": "^10.0.0",

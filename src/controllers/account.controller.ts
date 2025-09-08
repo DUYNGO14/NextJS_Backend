@@ -7,7 +7,7 @@ export const updateMeController = async (accountId: number, body: UpdateMeBodyTy
     data: {
       name: body.name,
       username: body.username ?? '',
-      dob: body.dob ?? undefined,
+      dob: body.dob ? new Date(body.dob) : undefined,
       gender: body.gender ?? undefined,
       phone: body.phone ?? undefined
     }

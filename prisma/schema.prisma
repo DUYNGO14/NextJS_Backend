@@ -11,6 +11,7 @@ enum Gender {
   male
   female
 }
+
 model Account {
   id        Int       @id @default(autoincrement())
   email     String    @unique
@@ -24,7 +25,6 @@ model Account {
   updatedAt DateTime  @updatedAt
 
   Session   Session[]
-  Posts     Post[]     // 🔹 thêm quan hệ ngược lại
 }
 
 model Session {
@@ -39,11 +39,10 @@ model Post {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
+  description String
+  image     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  accountId Int
-  account   Account  @relation(fields: [accountId], references: [id]) // 🔹 relation có 2 chiều
 }
 
 model Match {
