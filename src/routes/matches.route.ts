@@ -58,7 +58,6 @@ export default async function matchesRoutes(fastify: FastifyInstance, options: F
     },
     async (request, reply) => {
       const { page, limit, sortBy, sortOrder } = request.query as GetQueryParamsType;
-      console.log(request.query);
       const result = await getMatchesController({
         page,
         limit,

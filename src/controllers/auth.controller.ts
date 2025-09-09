@@ -24,22 +24,22 @@ export const registerController = async (body: RegisterBodyType) => {
       }
     })
 
-    const sessionToken = signSessionToken({
-      userId: account.id
-    })
-    const expiresAt = addMilliseconds(new Date(), ms(envConfig.SESSION_TOKEN_EXPIRES_IN))
+    // const sessionToken = signSessionToken({
+    //   userId: account.id
+    // })
+    // const expiresAt = addMilliseconds(new Date(), ms(envConfig.SESSION_TOKEN_EXPIRES_IN))
 
-    const session = await prisma.session.create({
-      data: {
-        accountId: account.id,
-        token: sessionToken,
-        expiresAt
-      }
-    })
+    // const session = await prisma.session.create({
+    //   data: {
+    //     accountId: account.id,
+    //     token: sessionToken,
+    //     expiresAt
+    //   }
+    // })
 
     return {
       account,
-      session
+      // session
     }
   } catch (error: any) {
     if (isPrismaClientKnownRequestError(error)) {
@@ -75,8 +75,7 @@ export const slideSessionController = async (sessionToken: string) => {
   })
   return session
 }
-export const loginController = async (body: LoginBodyType) => {
-  console.log('Login attempt:', body)
+export const loginController = async (body: LoginBodyType, deviceInfo?: string, ipAddress?: string) => {
   const account = await prisma.account.findUnique({
     where: {
       email: body.email
@@ -94,15 +93,50 @@ export const loginController = async (body: LoginBodyType) => {
   })
   const expiresAt = addMilliseconds(new Date(), ms(envConfig.SESSION_TOKEN_EXPIRES_IN))
 
+  // Kiểm tra và giới hạn số session (tối đa 5 session)
+  const existingSessions = await prisma.session.findMany({
+    where: {
+      accountId: account.id,
+      expiresAt: {
+        gt: new Date() // Chỉ lấy session còn hạn
+      }
+    }
+  })
+
+  // Nếu đã có 5 session active, xóa session cũ nhất
+  if (existingSessions.length >= 5) {
+    const oldestSession = existingSessions.reduce((oldest, current) => {
+      return oldest.createdAt < current.createdAt ? oldest : current
+    })
+    
+    await prisma.session.delete({
+      where: {
+        id: oldestSession.id
+      }
+    })
+  }
+
   const session = await prisma.session.create({
     data: {
       accountId: account.id,
       token: sessionToken,
-      expiresAt
+      expiresAt,
+      deviceInfo: deviceInfo || 'Unknown device',
+      ipAddress: ipAddress || 'Unknown IP',
+      lastUsedAt: new Date()
     }
   })
   return {
-    account,
-    session
+   account: {
+      id: account.id,
+      email: account.email,
+      username: account.username,
+      name: account.name,
+    },
+    session: {
+      token: session.token,
+      expiresAt: session.expiresAt,
+      deviceInfo: session.deviceInfo
+    }
   }
 }

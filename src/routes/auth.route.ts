@@ -39,31 +39,18 @@ export default async function authRoutes(fastify: FastifyInstance, options: Fast
     },
     async (request, reply) => {
       const { body } = request
-      const { session, account } = await registerController(body)
+      const { account } = await registerController(body)
       if (envConfig.COOKIE_MODE) {
-        reply
-          .setCookie('sessionToken', session.token, {
-            path: '/',
-            httpOnly: true,
-            secure: true,
-            expires: session.expiresAt,
-            sameSite: 'none',
-            domain: envConfig.DOMAIN
-          })
-          .send({
-            message: 'Đăng ký thành công',
-            data: {
-              token: session.token,
-              expiresAt: session.expiresAt.toISOString(),
-              account
-            }
-          })
+        reply.send({
+          message: 'Đăng ký thành công',
+          data: {
+            account
+          }
+        })
       } else {
         reply.send({
           message: 'Đăng ký thành công',
           data: {
-            token: session.token,
-            expiresAt: session.expiresAt.toISOString(),
             account
           }
         })
@@ -114,8 +101,10 @@ export default async function authRoutes(fastify: FastifyInstance, options: Fast
       }
     },
     async (request, reply) => {
+      const deviceInfo = request.headers['user-agent']
+      const ipAddress = request.ip || (request.headers['x-forwarded-for'] as string | undefined) || 'Unknown IP'
       const { body } = request
-      const { session, account } = await loginController(body)
+      const { session, account } = await loginController(body, deviceInfo, ipAddress)
       if (envConfig.COOKIE_MODE) {
         reply
           .setCookie('sessionToken', session.token, {
